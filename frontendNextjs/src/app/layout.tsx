@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { ToastContainer } from "react-toastify";
+import NextTopLoader from "nextjs-toploader";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.scss";
-import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Header from "@/components/ui/Header";
 import Footer from "@/components/ui/Footer";
@@ -23,6 +24,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body>
+                <NextTopLoader />
                 <Header />
                 <div className="container">
                     <Content>{children}</Content>
