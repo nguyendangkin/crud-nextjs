@@ -30,7 +30,7 @@ app.post("/users", (req, res) => {
     const newUser = { id: newId, ...user };
     users.push(newUser);
 
-    res.status(201).json({ EM: "Create SUCCESS", EC: 0, DT: [] });
+    res.status(201).json({ EM: "Create SUCCESS", EC: 0, DT: newUser });
 });
 
 // update
@@ -38,8 +38,9 @@ app.put("/users/:id", (req, res) => {
     const { id } = req.params;
     const index = users.findIndex((u) => u.id == id);
     if (index >= 0) {
-        const updatedUser = req.body;
-        if (updatedUser.id && updatedUser.id != id) {
+        const updatedUser = { ...users[index], ...req.body };
+
+        if (updatedUser.id != id) {
             res.status(400).json({
                 EM: "User ID in the body must match ID in the URL.",
                 EC: -1,
@@ -47,11 +48,12 @@ app.put("/users/:id", (req, res) => {
             });
             return;
         }
-        users[index] = { ...users[index], ...updatedUser };
+
+        users[index] = updatedUser;
         res.status(200).json({
             EM: "Update SUCCESS",
             EC: 0,
-            DT: [users[index]],
+            DT: updatedUser,
         });
     } else {
         res.status(404).json({ EM: "User not found.", EC: -1, DT: [] });

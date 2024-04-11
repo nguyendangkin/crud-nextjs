@@ -1,5 +1,7 @@
 "use client";
 
+import { mutate } from "swr";
+import axios from "axios";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import Button from "react-bootstrap/Button";
@@ -9,48 +11,57 @@ import Modal from "react-bootstrap/Modal";
 interface CreateUserModalProps {
     show: boolean;
     handleClose: () => void;
-    fetchUsers: () => void;
 }
 
-interface Data {
+interface User {
+    id: number;
+    name: string;
+    email: string;
+}
+
+interface ApiRes {
     EM: string;
     EC: number;
-    DT: never[];
+    DT: User[];
 }
 
-function CreateUserModal({
-    show,
-    handleClose,
-    fetchUsers,
-}: CreateUserModalProps) {
+function CreateUserModal({ show, handleClose }: CreateUserModalProps) {
     const [nameInput, setNameInput] = useState<string>("");
     const [emailInput, setEmailInput] = useState<string>("");
 
     const fetchAddNewUser = async (buildData: object) => {
         try {
-            const response = await fetch(
+            const response = await axios.post(
                 `${process.env.NEXT_PUBLIC_API_BACKEND}/users`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(buildData),
-                }
+                buildData
             );
 
-            const data: Data = await response.json();
-
+            const data = response.data;
             if (data.EC === 0) {
-                fetchUsers();
+                mutate(
+                    `${process.env.NEXT_PUBLIC_API_BACKEND}/users`,
+                    async (cachedData: ApiRes | undefined) => {
+                        if (!cachedData) {
+                            return { EM: "", EC: 0, DT: [data.DT] };
+                        }
+                        return {
+                            ...cachedData,
+                            DT: [...cachedData.DT, data.DT],
+                        };
+                    },
+                    false
+                );
+
                 toast.success(data.EM);
                 setNameInput("");
                 setEmailInput("");
+                handleClose();
             } else {
                 toast.error(data.EM);
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
+            toast.error("An error occurred while creating the user.");
         }
     };
 
@@ -58,14 +69,11 @@ function CreateUserModal({
         trimmedName: string,
         trimmedEmail: string
     ): boolean => {
-        // check whitespace
-
         if (!trimmedName || !trimmedEmail) {
             toast.error("Please enter Name or Email");
             return false;
         }
 
-        // check email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(trimmedEmail)) {
             toast.error("Please enter a valid email address.");

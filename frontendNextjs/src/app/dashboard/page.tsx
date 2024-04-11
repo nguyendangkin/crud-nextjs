@@ -1,8 +1,11 @@
 "use client";
 
+import axios from "axios";
+import { mutate } from "swr";
 import { useEffect, useState } from "react";
 import { Table, Button } from "react-bootstrap";
 import { toast } from "react-toastify";
+import useSWR from "swr";
 import Skeleton from "react-loading-skeleton";
 import CreateUserModal from "@/components/modals/dashboard/CreateUserModal";
 import UpdateUserModal from "@/components/modals/dashboard/UpdateUserModal";
@@ -37,6 +40,8 @@ interface BuildData {
     idUser: number;
 }
 
+const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+
 export default function Dashboard() {
     const [users, setUsers] = useState<User[]>([]);
     const [userDataUpdate, setUserDataUpdate] = useState<UserUpdate>({
@@ -51,48 +56,42 @@ export default function Dashboard() {
     const handleClose = (): void => setShow(false);
     const handleCloseUpdate = (): void => setShowUpdate(false);
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
     // req read
-    const fetchUsers = async () => {
-        try {
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BACKEND}/users`
-            );
-            const data: ApiRes = await response.json();
+    const { data, error, isLoading } = useSWR<ApiRes>(
+        `${process.env.NEXT_PUBLIC_API_BACKEND}/users`,
+        fetcher
+    );
 
-            if (data.EC === 0) {
-                setUsers(data.DT);
-            } else {
-                toast.error(data.EM);
-            }
-        } catch (error) {
-            console.error("Error fetching users:", error);
-        }
-    };
+    if (error) return <p className="display-6">Failed from Server</p>;
 
     // req Delete
-    const fetchDeleteUsers = async (userId: number) => {
+    const fetchDeleteUsers = async (userId: number): Promise<void> => {
         try {
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BACKEND}/users/${userId}`,
-                {
-                    method: "DELETE",
-                }
+            const response = await axios.delete(
+                `${process.env.NEXT_PUBLIC_API_BACKEND}/users/${userId}`
             );
-
-            const data: ApiRes = await response.json();
+            const data = response.data;
 
             if (data.EC === 0) {
                 toast.success(data.EM);
-                fetchUsers();
+
+                mutate(
+                    `${process.env.NEXT_PUBLIC_API_BACKEND}/users`,
+                    (cachedData: ApiRes | undefined) => {
+                        if (!cachedData) return;
+                        const updatedUsers = cachedData.DT.filter(
+                            (user: User) => user.id !== userId
+                        );
+                        return { ...cachedData, DT: updatedUsers };
+                    },
+                    false
+                );
             } else {
                 toast.error(data.EM);
             }
         } catch (error) {
             console.error(error);
+            toast.error("An error occurred while deleting the user.");
         }
     };
 
@@ -134,52 +133,47 @@ export default function Dashboard() {
                         </tr>
                     </thead>
                     <tbody>
-                        {(users &&
-                            users.length > 0 &&
-                            users.map((user) => (
-                                <tr key={user.id}>
-                                    <td>{user.id}</td>
-                                    <td>{user.name}</td>
-                                    <td>{user.email}</td>
-                                    <td>
-                                        <Button
-                                            variant="warning"
-                                            onClick={() =>
-                                                handleEdit(user.id, user)
-                                            }
-                                        >
-                                            Edit
-                                        </Button>
-                                        <Button
-                                            variant="danger"
-                                            className="ms-2"
-                                            onClick={() =>
-                                                handleDeleteUser(user.id)
-                                            }
-                                        >
-                                            Delete
-                                        </Button>
-                                    </td>
-                                </tr>
-                            ))) || (
-                            <tr>
-                                <td colSpan={4}>
-                                    <Skeleton count={4} />
-                                </td>
-                            </tr>
-                        )}
+                        {data && data.DT && data.DT.length > 0
+                            ? data.DT.map((user: User, index) => (
+                                  <tr key={`user-${index}`}>
+                                      <td>{user.id}</td>
+                                      <td>{user.name}</td>
+                                      <td>{user.email}</td>
+                                      <td>
+                                          <Button
+                                              variant="warning"
+                                              onClick={() =>
+                                                  handleEdit(user.id, user)
+                                              }
+                                          >
+                                              Edit
+                                          </Button>
+                                          <Button
+                                              variant="danger"
+                                              className="ms-2"
+                                              onClick={() =>
+                                                  handleDeleteUser(user.id)
+                                              }
+                                          >
+                                              Delete
+                                          </Button>
+                                      </td>
+                                  </tr>
+                              ))
+                            : isLoading && (
+                                  <tr>
+                                      <td colSpan={4}>
+                                          <Skeleton count={4} />
+                                      </td>
+                                  </tr>
+                              )}
                     </tbody>
                 </Table>
             </div>
-            <CreateUserModal
-                show={show}
-                handleClose={handleClose}
-                fetchUsers={fetchUsers}
-            />
+            <CreateUserModal show={show} handleClose={handleClose} />
             <UpdateUserModal
                 showUpdate={showUpdate}
                 handleCloseUpdate={handleCloseUpdate}
-                fetchUsers={fetchUsers}
                 userDataUpdate={userDataUpdate}
             />
         </main>

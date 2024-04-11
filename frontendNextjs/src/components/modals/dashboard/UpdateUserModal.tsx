@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import useSWR, { mutate } from "swr";
+import axios from "axios";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
@@ -14,7 +16,6 @@ interface UserUpdate {
 interface CreateUserModalProps {
     showUpdate: boolean;
     handleCloseUpdate: () => void;
-    fetchUsers: () => void;
     userDataUpdate: UserUpdate;
 }
 
@@ -23,16 +24,22 @@ interface BuildData {
     email: string;
 }
 
-interface Data {
+interface User {
+    id: number;
+    name: string;
+    email: string;
+}
+
+interface ApiRes {
     EM: string;
     EC: number;
-    DT: never[];
+    DT: User[];
 }
 
 const UpdateUserModal = ({
     showUpdate,
     handleCloseUpdate,
-    fetchUsers,
+
     userDataUpdate,
 }: CreateUserModalProps) => {
     const [nameInput, setNameInput] = useState<string>("");
@@ -80,27 +87,36 @@ const UpdateUserModal = ({
 
     const fetchUpdateUser = async (buildData: BuildData) => {
         try {
-            const response = await fetch(
+            const response = await axios.put(
                 `${process.env.NEXT_PUBLIC_API_BACKEND}/users/${userDataUpdate.idUser}`,
-                {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(buildData),
-                }
+                buildData
             );
 
-            const data: Data = await response.json();
+            if (response.data.EC === 0) {
+                mutate(
+                    `${process.env.NEXT_PUBLIC_API_BACKEND}/users`,
+                    (cachedData: ApiRes | undefined) => {
+                        if (!cachedData) return;
 
-            if (data.EC === 0) {
-                toast.success(data.EM);
-                fetchUsers();
+                        const updatedUsers = cachedData.DT.map((user) =>
+                            user.id === userDataUpdate.idUser
+                                ? { ...user, ...buildData }
+                                : user
+                        );
+
+                        return { ...cachedData, DT: updatedUsers };
+                    },
+                    false
+                );
+
+                toast.success(response.data.EM);
+                handleCloseUpdate();
             } else {
-                toast.error(data.EM);
+                toast.error(response.data.EM);
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
+            toast.error("An error occurred while updating the user.");
         }
     };
 
