@@ -9,6 +9,7 @@ export default function Home() {
                 alt="Main"
                 width={500}
                 height={300}
+                priority
             />
         </main>
     );

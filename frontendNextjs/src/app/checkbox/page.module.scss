@@ -1,0 +1,21 @@
+.checkboxWrapper {
+    .form-check {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0.5rem;
+    }
+}
+
+.borderContainerDiv {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 12px;
+}
+
+.radioWrapper {
+    display: flex;
+    flex-direction: column;
+    .form-check {
+        margin-bottom: 0.5rem;
+    }
+}

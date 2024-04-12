@@ -3,11 +3,11 @@ import { Inter } from "next/font/google";
 import { ToastContainer } from "react-toastify";
 import NextTopLoader from "nextjs-toploader";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./globals.scss";
 import "react-toastify/dist/ReactToastify.css";
 import Header from "@/components/ui/Header";
 import Footer from "@/components/ui/Footer";
 import Content from "@/components/ui/Content";
+import "./globals.scss";
 
 const inter = Inter({ subsets: ["latin"] });
 
