@@ -42,6 +42,9 @@ function Header() {
                         <Nav.Link as={Link} href="/avatarchange">
                             Avatar Change
                         </Nav.Link>
+                        <Nav.Link as={Link} href="/select">
+                            Select
+                        </Nav.Link>
                     </Nav>
                     <div className="ms-auto">
                         <Button variant="primary" onClick={() => toggleTheme()}>
