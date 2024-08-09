@@ -18,23 +18,12 @@ import { HttpsSWR } from "@/https/httpsSWR";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-const formSchema = z
-    .object({
-        username: z.string().min(1, { message: "Tối thiểu 1 ký tự" }).max(50),
-        email: z.string().email({ message: "Email không hợp lệ" }),
-        fullName: z.string().min(1, { message: "Tối thiểu 1 ký tự" }).max(50),
-        password: z.string().min(1, { message: "Tối thiểu 1 ký tự" }).max(50),
-        confirmPassword: z
-            .string()
-            .min(1, { message: "Tối thiểu 1 ký tự" })
-            .max(50),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-        message: "Mật khẩu nhập lại không khớp",
-        path: ["confirmPassword"],
-    });
+const formSchema = z.object({
+    username: z.string().min(1, { message: "Tối thiểu 1 ký tự" }).max(50),
+    password: z.string().min(1, { message: "Tối thiểu 1 ký tự" }).max(50),
+});
 
-export default function FormRegister() {
+export default function FormLogin() {
     const [alert, setAlert] = useState<{
         message: string;
         variant: "default" | "destructive";
@@ -47,10 +36,7 @@ export default function FormRegister() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             username: "",
-            email: "",
-            fullName: "",
             password: "",
-            confirmPassword: "",
         },
     });
 
@@ -98,38 +84,7 @@ export default function FormRegister() {
                             </FormItem>
                         )}
                     />
-                    <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Email</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        placeholder="Email của bạn"
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="fullName"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Full Name</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        placeholder="Tên đầy đủ của bạn"
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+
                     <FormField
                         control={form.control}
                         name="password"
@@ -140,23 +95,6 @@ export default function FormRegister() {
                                     <Input
                                         type="password"
                                         placeholder="Mật khẩu của bạn"
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Confirm Password</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="password"
-                                        placeholder="Nhập lại mật khẩu"
                                         {...field}
                                     />
                                 </FormControl>
@@ -181,7 +119,7 @@ export default function FormRegister() {
                     ) : (
                         ""
                     )}
-                    Đăng ký
+                    Đăng nhập
                 </Button>
             </form>
         </Form>
