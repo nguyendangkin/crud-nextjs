@@ -43,12 +43,13 @@ export default function FormLogin() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             setIsLoading(true);
-            const result = await HttpsSWR.post("/auth/register", values);
+            const result = await HttpsSWR.post("/auth/login", values);
             if (result.statusCode === 200) {
                 setAlert({
                     message: result.message,
                     variant: "default",
                 });
+                await HttpsSWR.post("/api", result, "http://localhost:3001");
                 setTimeout(() => {
                     router.push("/");
                 }, 1000);
