@@ -14,9 +14,10 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { HttpsSWR } from "@/https/httpsSWR";
+
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { HttpsSWR } from "@/https/HttpsSWR";
 
 const formSchema = z
     .object({
@@ -57,7 +58,10 @@ export default function FormRegister() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             setIsLoading(true);
-            const result = await HttpsSWR.post("/auth/register", values);
+            const result = await HttpsSWR.post({
+                url: "/auth/register",
+                data: values,
+            });
             if (result.statusCode === 200) {
                 setAlert({
                     message: result.message,

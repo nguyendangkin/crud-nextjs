@@ -1,72 +1,75 @@
-import useSWR, { mutate as globalMutate } from "swr";
+import { mutate as globalMutate } from "swr";
 
-export class HttpsSWR {
-    private static defaultBaseUrl: string = "http://localhost:3000"; // mặc định
+interface RequestConfig {
+    url: string;
+    data?: any;
+    baseUrl?: string;
+    token?: string;
+}
 
-    private static fetcher(url: string, method: string, data?: any) {
-        return fetch(url, {
-            method,
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: data ? JSON.stringify(data) : undefined,
-        }).then((res) => {
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
+class HttpsSWR {
+    private static defaultBaseUrl: string = "http://localhost:3000";
+
+    private static async fetcher(config: RequestConfig, method: string) {
+        const {
+            url,
+            data,
+            baseUrl = HttpsSWR.getDefaultBaseUrl(),
+            token,
+        } = config;
+        const fullUrl = `${baseUrl}${url}`;
+
+        const headers: HeadersInit = {
+            "Content-Type": "application/json",
+        };
+
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        try {
+            const response = await fetch(fullUrl, {
+                method,
+                headers,
+                body: data ? JSON.stringify(data) : undefined,
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return res.json();
-        });
-    }
 
-    static get(endpoint: string, customBaseUrl?: string) {
-        const baseUrl = customBaseUrl || HttpsSWR.defaultBaseUrl;
-        const { data, error, mutate } = useSWR(
-            `${baseUrl}${endpoint}`,
-            (url) => HttpsSWR.fetcher(url, "GET"),
-            {
-                revalidateOnFocus: false,
-                revalidateOnReconnect: false,
-            }
-        );
-
-        return { data, error, mutate };
-    }
-
-    static async post(endpoint: string, data: any, customBaseUrl?: string) {
-        const baseUrl = customBaseUrl || HttpsSWR.defaultBaseUrl;
-        const fullUrl = `${baseUrl}${endpoint}`;
-        try {
-            const result = await HttpsSWR.fetcher(fullUrl, "POST", data);
-            await globalMutate(fullUrl);
-            return result;
+            return response.json();
         } catch (error) {
-            console.error(`Error in POST request to ${fullUrl}:`, error);
-            throw error;
-        }
-    }
-    static async put(endpoint: string, data: any, customBaseUrl?: string) {
-        const baseUrl = customBaseUrl || HttpsSWR.defaultBaseUrl;
-        const fullUrl = `${baseUrl}${endpoint}`;
-        try {
-            const result = await HttpsSWR.fetcher(fullUrl, "PUT", data);
-            await globalMutate(fullUrl);
-            return result;
-        } catch (error) {
-            console.error(`Error in PUT request to ${fullUrl}:`, error);
+            console.error(`Error in ${method} request to ${fullUrl}:`, error);
             throw error;
         }
     }
 
-    static async delete(endpoint: string, customBaseUrl?: string) {
-        const baseUrl = customBaseUrl || HttpsSWR.defaultBaseUrl;
-        const fullUrl = `${baseUrl}${endpoint}`;
-        try {
-            const result = await HttpsSWR.fetcher(fullUrl, "DELETE");
-            await globalMutate(fullUrl);
-            return result;
-        } catch (error) {
-            console.error(`Error in DELETE request to ${fullUrl}:`, error);
-            throw error;
-        }
+    public static async get(config: RequestConfig) {
+        return HttpsSWR.fetcher(config, "GET");
+    }
+
+    public static async post(config: RequestConfig) {
+        const result = await HttpsSWR.fetcher(config, "POST");
+        await globalMutate(config.url);
+        return result;
+    }
+
+    public static async put(config: RequestConfig) {
+        const result = await HttpsSWR.fetcher(config, "PUT");
+        await globalMutate(config.url);
+        return result;
+    }
+
+    public static async delete(config: RequestConfig) {
+        const result = await HttpsSWR.fetcher(config, "DELETE");
+        await globalMutate(config.url);
+        return result;
+    }
+
+    public static getDefaultBaseUrl() {
+        return HttpsSWR.defaultBaseUrl;
     }
 }
+
+export { HttpsSWR };

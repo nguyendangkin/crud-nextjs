@@ -46,14 +46,23 @@ export default function FormLogin() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             setIsLoading(true);
-            const result = await HttpsSWR.post("/auth/login", values);
+            // const result = await HttpsSWR.post("/auth/login", values);
+            const result = await HttpsSWR.post({
+                url: "/auth/login",
+                data: values,
+            });
             if (result.statusCode === 200) {
                 setAlert({
                     message: result.message,
                     variant: "default",
                 });
                 // gọi api để save cookies
-                await HttpsSWR.post("/api", result, "http://localhost:3001");
+                // await HttpsSWR.post("/api", result, "http://localhost:3001");
+                await HttpsSWR.post({
+                    url: "/api",
+                    baseUrl: "http://localhost:3001",
+                    data: result,
+                });
                 // gọi để nạp accessToken vào contextAPI
                 setAccessToken(result.access_token);
                 setUsername(result.username);
