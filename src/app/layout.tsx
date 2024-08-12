@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/componentLayout/Header";
+import AppProvider from "@/app/AppProvider";
+import { cookies } from "next/headers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,11 +17,17 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const cookieStore = cookies();
+    const accessToken = cookieStore.get("access_token")?.value;
+    console.log(accessToken);
+
     return (
         <html lang="en">
             <body className={inter.className}>
                 <Header />
-                {children}
+                <AppProvider initialAccessToken={accessToken}>
+                    {children}
+                </AppProvider>
             </body>
         </html>
     );

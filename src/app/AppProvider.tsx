@@ -6,7 +6,7 @@ const AppContext = createContext({
     setAccessToken: (accessToken: string) => {},
 });
 
-const useAppContext = () => {
+export const useAppContext = () => {
     const context = useContext(AppContext);
     if (!context) {
         throw new Error("No AppContext found");
@@ -16,13 +16,15 @@ const useAppContext = () => {
 
 export default function AppProvider({
     children,
+    initialAccessToken = "",
 }: {
     children: React.ReactNode;
+    initialAccessToken?: string;
 }) {
-    const [accessToken, setAccessToken] = useState("");
+    const [accessToken, setAccessToken] = useState(initialAccessToken);
     return (
-        <AppContext.Provider
-            value={{ accessToken, setAccessToken }}
-        ></AppContext.Provider>
+        <AppContext.Provider value={{ accessToken, setAccessToken }}>
+            {children}
+        </AppContext.Provider>
     );
 }

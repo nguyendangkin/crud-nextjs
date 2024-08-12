@@ -14,9 +14,11 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { HttpsSWR } from "@/https/httpsSWR";
+
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { HttpsSWR } from "@/https/HttpsSWR";
+import { useAppContext } from "@/app/AppProvider";
 
 const formSchema = z.object({
     username: z.string().min(1, { message: "Tối thiểu 1 ký tự" }).max(50),
@@ -29,6 +31,7 @@ export default function FormLogin() {
         variant: "default" | "destructive";
     } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const { setAccessToken } = useAppContext();
 
     const router = useRouter();
 
@@ -50,6 +53,8 @@ export default function FormLogin() {
                     variant: "default",
                 });
                 await HttpsSWR.post("/api", result, "http://localhost:3001");
+                setAccessToken(result.access_token);
+
                 setTimeout(() => {
                     router.push("/");
                 }, 1000);
