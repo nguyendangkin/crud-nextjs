@@ -31,7 +31,7 @@ export default function FormLogin() {
         variant: "default" | "destructive";
     } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const { setAccessToken } = useAppContext();
+    const { setAccessToken, setUsername } = useAppContext();
 
     const router = useRouter();
 
@@ -52,8 +52,11 @@ export default function FormLogin() {
                     message: result.message,
                     variant: "default",
                 });
+                // gọi api để save cookies
                 await HttpsSWR.post("/api", result, "http://localhost:3001");
+                // gọi để nạp accessToken vào contextAPI
                 setAccessToken(result.access_token);
+                setUsername(result.username);
 
                 setTimeout(() => {
                     router.push("/");

@@ -4,6 +4,8 @@ import { createContext, useContext, useState } from "react";
 const AppContext = createContext({
     accessToken: "",
     setAccessToken: (accessToken: string) => {},
+    username: "",
+    setUsername: (username: string) => {},
 });
 
 export const useAppContext = () => {
@@ -17,13 +19,18 @@ export const useAppContext = () => {
 export default function AppProvider({
     children,
     initialAccessToken = "",
+    initPublicInfo = "",
 }: {
     children: React.ReactNode;
     initialAccessToken?: string;
+    initPublicInfo?: string;
 }) {
     const [accessToken, setAccessToken] = useState(initialAccessToken);
+    const [username, setUsername] = useState(initPublicInfo);
     return (
-        <AppContext.Provider value={{ accessToken, setAccessToken }}>
+        <AppContext.Provider
+            value={{ accessToken, setAccessToken, username, setUsername }}
+        >
             {children}
         </AppContext.Provider>
     );
