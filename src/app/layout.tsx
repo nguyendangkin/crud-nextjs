@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/componentLayout/Header";
-import AppProvider from "@/app/AppProvider";
+
 import { cookies } from "next/headers";
+import AppProvider from "@/app/AppProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 

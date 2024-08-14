@@ -14,11 +14,11 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { HttpsSWR } from "@/https/HttpsSWR";
 import { useAppContext } from "@/app/AppProvider";
+import http from "@/https/http";
+import createHttpClient from "@/https/http";
 
 const formSchema = z.object({
     username: z.string().min(1, { message: "Tối thiểu 1 ký tự" }).max(50),
@@ -43,36 +43,37 @@ export default function FormLogin() {
         },
     });
 
+    const http = createHttpClient();
+
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             setIsLoading(true);
-            // const result = await HttpsSWR.post("/auth/login", values);
-            const result = await HttpsSWR.post({
+            const data = await http.post({
                 url: "/auth/login",
                 data: values,
             });
-            if (result.statusCode === 200) {
+
+            if (data.statusCode === 200) {
                 setAlert({
-                    message: result.message,
+                    message: data.message,
                     variant: "default",
                 });
-                // gọi api để save cookies
-                // await HttpsSWR.post("/api", result, "http://localhost:3001");
-                await HttpsSWR.post({
+
+                // gọi để nạp accessToken vào contextAPI
+                await http.post({
                     url: "/api",
                     baseUrl: "http://localhost:3001",
-                    data: result,
+                    data: data,
                 });
-                // gọi để nạp accessToken vào contextAPI
-                setAccessToken(result.access_token);
-                setUsername(result.username);
+                setAccessToken(data.access_token);
+                setUsername(data.username);
 
                 setTimeout(() => {
                     router.push("/");
-                }, 1000);
+                }, 500);
             } else {
                 setAlert({
-                    message: result.message,
+                    message: data.message,
                     variant: "destructive",
                 });
             }
