@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { useAppContext } from "@/app/AppProvider";
 import { useRouter } from "next/navigation";
-import { withAuth } from "@/hoc/withAuth";
+import withAuth from "@/app/hoc/withAuth";
 
 interface User {
     id: number;

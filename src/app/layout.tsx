@@ -5,7 +5,6 @@ import Header from "@/componentLayout/Header";
 
 import { cookies } from "next/headers";
 import AppProvider from "@/app/AppProvider";
-import { AuthProvider } from "@/components/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,10 +27,8 @@ export default function RootLayout({
         <html lang="en">
             <body className={inter.className}>
                 <AppProvider initialAccessToken={accessToken}>
-                    <AuthProvider>
-                        <Header />
-                        {children}
-                    </AuthProvider>
+                    <Header />
+                    {children}
                 </AppProvider>
             </body>
         </html>

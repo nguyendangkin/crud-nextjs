@@ -1,4 +1,7 @@
+"use client";
+
 import FormLogin from "@/app/dang-nhap/componentLayout/FormLgoin";
+import withAuth from "@/app/hoc/withAuth";
 import React from "react";
 
 const Login = () => {
@@ -10,4 +13,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default withAuth(Login);
