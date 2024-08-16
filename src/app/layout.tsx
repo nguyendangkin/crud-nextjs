@@ -20,15 +20,13 @@ export default function RootLayout({
 }>) {
     const cookieStore = cookies();
     const accessToken = cookieStore.get("access_token")?.value;
-    const publicInfo = cookieStore.get("public_info")?.value;
+
+    console.log("check");
 
     return (
         <html lang="en">
             <body className={inter.className}>
-                <AppProvider
-                    initialAccessToken={accessToken}
-                    initPublicInfo={publicInfo}
-                >
+                <AppProvider initialAccessToken={accessToken}>
                     <Header />
                     {children}
                 </AppProvider>

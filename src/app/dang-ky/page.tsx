@@ -1,7 +1,10 @@
+"use client";
+
 import FormRegister from "@/app/dang-ky/componentLayout/FormRegister";
+import withAuth from "@/app/hoc/withAuth";
 import React from "react";
 
-export default function Register() {
+function Register() {
     return (
         <div>
             <h1 className="text-xl">Đăng Ký</h1>
@@ -9,3 +12,5 @@ export default function Register() {
         </div>
     );
 }
+
+export default withAuth(Register);

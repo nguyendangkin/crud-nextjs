@@ -69,9 +69,8 @@ export default function FormRegister() {
                     message: result.message,
                     variant: "default",
                 });
-                setTimeout(() => {
-                    router.push("/");
-                }, 500);
+
+                router.push("/");
             } else {
                 setAlert({
                     message: result.message,

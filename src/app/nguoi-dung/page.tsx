@@ -11,6 +11,9 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { useAppContext } from "@/app/AppProvider";
+import { useRouter } from "next/navigation";
+import withAuth from "@/app/hoc/withAuth";
 
 interface User {
     id: number;
@@ -19,16 +22,21 @@ interface User {
     email: string;
 }
 
-export default function Users() {
+function Users() {
     const [users, setUsers] = useState<User[]>([]);
     const http = createHttpClient();
+    const { accessToken } = useAppContext();
+    const router = useRouter();
 
     useEffect(() => {
-        (async () => {
-            const data = await http.get({ url: "/users" });
-            setUsers(data);
-        })();
-    }, []);
+        // Fetch users only if accessToken exists
+        if (accessToken) {
+            (async () => {
+                const data = await http.get({ url: "/users" });
+                setUsers(data);
+            })();
+        }
+    }, [accessToken, http]);
 
     return (
         <Table>
@@ -56,3 +64,5 @@ export default function Users() {
         </Table>
     );
 }
+
+export default withAuth(Users);
