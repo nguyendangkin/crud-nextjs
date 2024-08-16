@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAppContext } from "@/app/AppProvider";
-import http from "@/https/http";
+
 import createHttpClient from "@/https/http";
 
 const formSchema = z.object({
@@ -31,7 +31,7 @@ export default function FormLogin() {
         variant: "default" | "destructive";
     } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const { setAccessToken, setUsername } = useAppContext();
+    const { setAccessToken } = useAppContext();
 
     const router = useRouter();
 
@@ -66,11 +66,7 @@ export default function FormLogin() {
                     data: data,
                 });
                 setAccessToken(data.access_token);
-                setUsername(data.username);
-
-                setTimeout(() => {
-                    router.push("/");
-                }, 500);
+                router.push("/");
             } else {
                 setAlert({
                     message: data.message,

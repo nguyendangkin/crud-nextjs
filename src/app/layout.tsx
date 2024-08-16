@@ -5,6 +5,7 @@ import Header from "@/componentLayout/Header";
 
 import { cookies } from "next/headers";
 import AppProvider from "@/app/AppProvider";
+import { AuthProvider } from "@/components/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,17 +21,17 @@ export default function RootLayout({
 }>) {
     const cookieStore = cookies();
     const accessToken = cookieStore.get("access_token")?.value;
-    const publicInfo = cookieStore.get("public_info")?.value;
+
+    console.log("check");
 
     return (
         <html lang="en">
             <body className={inter.className}>
-                <AppProvider
-                    initialAccessToken={accessToken}
-                    initPublicInfo={publicInfo}
-                >
-                    <Header />
-                    {children}
+                <AppProvider initialAccessToken={accessToken}>
+                    <AuthProvider>
+                        <Header />
+                        {children}
+                    </AuthProvider>
                 </AppProvider>
             </body>
         </html>
