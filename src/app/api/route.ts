@@ -24,6 +24,7 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
     const headers = new Headers();
     headers.append("Set-Cookie", "access_token=; Path=/; HttpOnly; Max-Age=0");
+    headers.append("Set-Cookie", "refresh_token=; Path=/; HttpOnly; Max-Age=0");
 
     return Response.json(null, {
         status: 200,

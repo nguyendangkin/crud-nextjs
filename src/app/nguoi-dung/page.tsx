@@ -12,7 +12,6 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { useAppContext } from "@/app/AppProvider";
-import { useRouter } from "next/navigation";
 import withAuth from "@/app/hoc/withAuth";
 
 interface User {
@@ -26,7 +25,6 @@ function Users() {
     const [users, setUsers] = useState<User[]>([]);
     const http = createHttpClient();
     const { accessToken } = useAppContext();
-    const router = useRouter();
 
     useEffect(() => {
         // Fetch users only if accessToken exists
@@ -36,7 +34,7 @@ function Users() {
                 setUsers(data);
             })();
         }
-    }, [accessToken, http]);
+    }, []);
 
     return (
         <Table>
